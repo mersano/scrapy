@@ -1,0 +1,36 @@
+name: Run PPH Link Extractor
+
+on:
+  workflow_dispatch: {}   # rulezi manual din tab-ul Actions
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r pph_extractor/requirements.txt
+
+      - name: Run extractor
+        run: |
+          cd pph_extractor
+          python extract_links_pph.py
+          ls -la
+
+      - name: Upload CSV artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pph-client-links
+          path: |
+            pph_extractor/clients_links.csv
+            pph_extractor/clients_domains_unique.csv
+          if-no-files-found: error
